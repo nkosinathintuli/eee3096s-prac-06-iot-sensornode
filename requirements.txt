@@ -1,1 +1,6 @@
 Flask==0.12.3
+RPi.GPIO==0.7.1a4
+adafruit-blinka
+adafruit-circuitpython-mcp3xxx
+adafruit-circuitpython-busdevice
+
