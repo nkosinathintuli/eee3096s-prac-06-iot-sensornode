@@ -1,16 +1,5 @@
 #!/usr/bin/env python
 
-"""from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def hello_world():
-    return 'Wubba Lubba Dub-Dub!'
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)"""
-
-	
 import socket
 import busio
 import digitalio
@@ -28,11 +17,10 @@ TCP_PORT = 5005
 BUFFER_SIZE = 1024
 MESSAGE = "Hello, World!"
 
-
 # toggle button
 toggle_btn = 23 # mode set to BCM
 # sampling rates
-samp_rates = [90,1, 5, 10]
+samp_rates = [1, 5, 10]
 # create the spi bus
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 # create the cs (chip select)
@@ -77,6 +65,16 @@ def to_temp(voltage):
   t_c = 0.01 # Temperature Coefficient
   t_a = (voltage-v_0c)/t_c # ambient temperature
   return t_a
+  
+# read from sensors
+def read_sensors():
+  global temp_ADC
+  global temp_v_out
+  global LDR_ADC
+  temp_ADC = chan1.value
+  temp_v_out = chan1.voltage
+  LDR_ADC = chan2.value
+  pass
 
 # print sensor readings
 def print_readings():
@@ -88,12 +86,8 @@ def print_readings():
   read_sensors()
   MESSAGE = f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}"
   runtime=+(time.time()-start)
-  send_to_server()
+  print(f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}")
 
-  #print(f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}")
-  
-   
-  
 def send_to_server():
 	print("Sending...")
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,19 +96,6 @@ def send_to_server():
 	data = s.recv(BUFFER_SIZE)
 	s.close()
 	print("received data:", data)
-	#time.sleep(90)
-  
-
-# read from sensors
-def read_sensors():
-  global temp_ADC
-  global temp_v_out
-  global LDR_ADC
-  temp_ADC = chan1.value
-  temp_v_out = chan1.voltage
-  LDR_ADC = chan2.value
-  pass
-
 
 if __name__ == "__main__":
   try:
@@ -122,10 +103,8 @@ if __name__ == "__main__":
     print("Runtime   Temp Reading   Temp      Light Reading")
     print_readings() # call it once to start the thread
     # Tell our program to run indefinitely
-    
 
     while True:
-      #send_to_server()
       pass
   except Exception as e:
     print(e)
