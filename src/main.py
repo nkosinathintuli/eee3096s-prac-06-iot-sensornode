@@ -12,7 +12,8 @@ import time
 import datetime
 import RPi.GPIO as GPIO
 
-TCP_IP = '192.168.137.6'
+TCP_IP = ''
+P2_IP = '192.168.137.6'
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 MESSAGE = "Hello, World!"
@@ -84,14 +85,13 @@ def print_readings():
   thread.daemon = True  # Daemon threads exit when the program does
   thread.start()
   read_sensors()
-  MESSAGE = f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}"
   runtime=+(time.time()-start)
   print(f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}")
 
 def send_to_server():
 	print("Sending...")
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect((TCP_IP, TCP_PORT))
+	s.connect((P2_IP, TCP_PORT))
 	s.send(MESSAGE.encode())
 	data = s.recv(BUFFER_SIZE)
 	s.close()
@@ -100,11 +100,14 @@ def send_to_server():
 if __name__ == "__main__":
   try:
     setup()
-    print("Runtime   Temp Reading   Temp      Light Reading")
-    print_readings() # call it once to start the thread
+    send_to_server()
+    #print("Runtime   Temp Reading   Temp      Light Reading")
+    #print_readings() # call it once to start the thread
     # Tell our program to run indefinitely
 
     while True:
+      send_to_server()	
+      time.sleep(30)
       pass
   except Exception as e:
     print(e)
