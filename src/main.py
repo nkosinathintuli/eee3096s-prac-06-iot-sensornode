@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 import threading
 import time
+from time import sleep
 import datetime
 import random
 TCP_IP = ''
 P2_IP = '192.168.137.6'
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
-MESSAGE = "Hello, World!"
+MESSAGE=''
+global data
+data=''
 
 
 # readings variables
@@ -26,18 +29,6 @@ runtime = 0
 pos = 0
 start = time.time()
 
-
-def to_temp():
-    round(15.2789,3)
-    t_a=str(round(21.132+random.randrange(-3,3,1)/random.randrange(1,7,2),2))+"C"
-    return t_a
-
-def send_():
-  e = datetime.datetime.now()
-  date = e.strftime("%d/%m/%Y")
-  tim = e.strftime("%H:%M:%S")
-  strin=date+' '+tim+' '+str(to_temp())+' '+str(LDR_ADC+random.randrange(-900,900,1))
-  print("Sending Data",strin)
 # Setup pins
 def setup():
   # Setup board mode
@@ -68,14 +59,14 @@ def read_sensors():
   pass
 
 
-
+#create a csv file
 def create():
     header = ['Date', 'Time', 'Temparature', 'LDR']
     with open('sensorlog.csv', 'w',encoding='UTF8',newline='') as csvfile: 
         writer1 = writer(csvfile) 
         writer1.writerow(header)
         csvfile.close()
-
+#add data to 
 def add(row):
     with open('sensorlog.csv', 'a',encoding='UTF8',newline='') as csvfile: 
         writer1 = writer(csvfile) 
@@ -101,12 +92,12 @@ def print_readings():
   read_sensors()
   send()
   runtime=+(time.time()-start)
-  print(f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}")
+  #print(f"{str(int(runtime))+'s':<7s}   {temp_ADC:<12.0f}   {to_temp(temp_v_out):<.2f} C   {LDR_ADC:<13.0f}")
 
 
 
 def send_to_server():
-  print("Sending...")
+  print("Sending Data")
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   s.connect((P2_IP, TCP_PORT))
   s.send(MESSAGE.encode())
@@ -114,21 +105,14 @@ def send_to_server():
   s.close()
   print("received data:", data)
 
-def runn():
-  count=0
-  while 1:
-    if(count==12 or count==24):
-      print("Waiting for server request")
-      count+=1
-      time.sleep(30)  
-    elif (count>32):
-      break
-    else:
-      send_()
-      time.sleep(10)
-      count+=1
+
 
 if __name__ == '__main__':
-  runn()
+  while 1:
+    if(data=='Sensor Off'):
+      break
+    send_to_server()
+    
+
   
     
